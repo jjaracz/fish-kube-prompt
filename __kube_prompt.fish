@@ -47,11 +47,24 @@ function __kube_ps_update_cache
   end
 end
 
-function __kube_prompt
+function __kube_prompt -d "show k8s context and namespace"
   if /bin/test -z "$__kube_ps_enabled"; or /bin/test $__kube_ps_enabled -ne 1
     return
   end
 
   __kube_ps_update_cache
-  echo -n -s " (⎈ $__kube_ps_context|$__kube_ps_namespace)"
+
+  set -l color_bg $argv[1]
+  set -l color_bg_key __kube_color_bg_(string escape --style=var $__kube_ps_context)
+  if set -q __kube_color_bg_(string escape --style=var $__kube_ps_context)
+    set color_bg $$color_bg_key
+  end
+
+  set -l color_fg $argv[2]
+  set -l color_fg_key __kube_color_fg_(string escape --style=var $__kube_ps_context)
+  if set -q __kube_color_fg_(string escape --style=var $__kube_ps_context)
+    set color_fg $$color_fg_key
+  end
+
+  prompt_segment $color_bg $color_fg "$__kube_ps_namespace"
 end
